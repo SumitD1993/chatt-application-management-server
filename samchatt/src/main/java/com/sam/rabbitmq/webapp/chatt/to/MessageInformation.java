@@ -4,7 +4,10 @@ import java.util.Date;
 
 public class MessageInformation {
 	private String sender;
+	private Integer senderId;
+	private String senderName;
 	private String receiver;
+	private Integer receiverId;
 	private String message;
 	private Date recievedDate;
 	private String messageID;
@@ -22,6 +25,30 @@ public class MessageInformation {
 
 	public void setSender(String sender) {
 		this.sender = sender;
+	}
+
+	public Integer getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(Integer senderId) {
+		this.senderId = senderId;
+	}
+
+	public String getSenderName() {
+		return senderName;
+	}
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
+	}
+
+	public Integer getReceiverId() {
+		return receiverId;
+	}
+
+	public void setReceiverId(Integer receiverId) {
+		this.receiverId = receiverId;
 	}
 
 	public String getReceiver() {

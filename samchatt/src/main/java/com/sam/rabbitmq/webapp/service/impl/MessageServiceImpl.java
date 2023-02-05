@@ -83,6 +83,9 @@ public class MessageServiceImpl implements MessageService{
 		saveMessageResponseTO.setResponseStatus(responseStatus);
 		messageDetails.setMessageID(userMessageHistory.getId()+"");
 		messageDetails.setAction("NEW_MESSAGE");
+		messageDetails.setSenderId(sender.getId());
+		messageDetails.setReceiverId(reciever.getId());
+		messageDetails.setSenderName(sender.getFirstName()+ (sender.getLastName() == null ? "":(" "+sender.getLastName())));
 		return saveMessageResponseTO;
 	}
 
