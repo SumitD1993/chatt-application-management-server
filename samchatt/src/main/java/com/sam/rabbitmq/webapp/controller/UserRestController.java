@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sam.rabbitmq.webapp.common.CommonUtils;
 import com.sam.rabbitmq.webapp.exception.CustomException;
+import com.sam.rabbitmq.webapp.response.ContactsDetailsResponseTO;
 import com.sam.rabbitmq.webapp.response.ResponseCodes;
 import com.sam.rabbitmq.webapp.response.ResponseStatus;
 import com.sam.rabbitmq.webapp.response.UserChatHistoryDetails;
@@ -34,6 +35,23 @@ public class UserRestController {
 		UserMainPageDetailsTO userMainPageDetailsTO = new UserMainPageDetailsTO();
 		try {
 			userMainPageDetailsTO = userService.fetchUserDetails(sessionId);
+		}catch (CustomException ce) {
+			ResponseStatus responseStatus = commonUtils.generateResponseStatusObject(ce.getMessage());
+			userMainPageDetailsTO.setResponseStatus(responseStatus);
+		}catch (Exception e) {
+			e.printStackTrace();
+			ResponseStatus responseStatus = commonUtils.generateResponseStatusObject(ResponseCodes.SYSTEM_ERROR);
+			userMainPageDetailsTO.setResponseStatus(responseStatus);
+		}
+		return userMainPageDetailsTO;
+	}
+	
+	@RequestMapping(value="userDetailsByRecId", method=RequestMethod.GET)
+	@ResponseBody 
+	public  UserMainPageDetailsTO getUserDetailsById(@PathVariable("sessionId") String sessionId, @RequestParam(required=true, value="recUserId") Integer recieverUserID) {
+		UserMainPageDetailsTO userMainPageDetailsTO = new UserMainPageDetailsTO();
+		try {
+			userMainPageDetailsTO = userService.fetchUserDetailsByRecvId(sessionId, recieverUserID);
 		}catch (CustomException ce) {
 			ResponseStatus responseStatus = commonUtils.generateResponseStatusObject(ce.getMessage());
 			userMainPageDetailsTO.setResponseStatus(responseStatus);
@@ -95,4 +113,22 @@ public class UserRestController {
 		}
 		return userChatHistoryDetails;
 	}
+	
+	@RequestMapping(value="getContacts", method=RequestMethod.GET)
+	@ResponseBody 
+	public  ContactsDetailsResponseTO getContacts(@PathVariable("sessionId") String sessionId) {
+		ContactsDetailsResponseTO contactsResponse = new ContactsDetailsResponseTO();
+		try {
+			contactsResponse = userService.fetchContacts(sessionId);
+		}catch (CustomException ce) {
+			ResponseStatus responseStatus = commonUtils.generateResponseStatusObject(ce.getMessage());
+			contactsResponse.setResponseStatus(responseStatus);
+		}catch (Exception e) {
+			e.printStackTrace();
+			ResponseStatus responseStatus = commonUtils.generateResponseStatusObject(ResponseCodes.SYSTEM_ERROR);
+			contactsResponse.setResponseStatus(responseStatus);
+		}
+		return contactsResponse;
+	}
+	
 }

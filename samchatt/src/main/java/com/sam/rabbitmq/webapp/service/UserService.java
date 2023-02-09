@@ -1,5 +1,6 @@
 package com.sam.rabbitmq.webapp.service;
 
+import com.sam.rabbitmq.webapp.response.ContactsDetailsResponseTO;
 import com.sam.rabbitmq.webapp.response.UserChatHistoryDetails;
 import com.sam.rabbitmq.webapp.response.UserMainPageDetailsTO;
 import com.sam.rabbitmq.webapp.response.UserRegitrationResponseTO;
@@ -12,5 +13,7 @@ public interface UserService {
 	UserMainPageDetailsTO fetchUserDetails(String sessionId) throws Exception;
 	UserChatHistoryDetails fetchUserChatHistory(String sessionId, Integer recieverUserID) throws Exception;
 	UserChatHistoryDetails updateMessageStatusByMessageId(String sessionId, Long messageId, String statusCode) throws Exception;
+	ContactsDetailsResponseTO fetchContacts(String sessionId) throws Exception;
+	UserMainPageDetailsTO fetchUserDetailsByRecvId(String sessionId, Integer recId) throws Exception;
 }
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import com.sam.rabbitmq.webapp.chatt.to.ContactDTO;
 import com.sam.rabbitmq.webapp.entity.User;
 import com.sam.rabbitmq.webapp.response.MessageDetails;
 import com.sam.rabbitmq.webapp.response.UserChatHistoryDetails;
@@ -20,4 +21,7 @@ public interface UserDAO {
 	User getUserBySessionId(Session session, String sessionId);
 	List<UserChatHistoryDetails> fetchUserChatHistoryDetailsByUserId(Session session, Integer id);
 	List<MessageDetails> fetchMessagesByUserIds(Session session, Integer recieverUserID, Integer userId, boolean senderMessages);
+	List<ContactDTO> getContacts(Session session, Integer id);
+	List<UserChatHistoryDetails> fetchUserChatHistoryDetailsByUserIdAndRecvId(Session session, Integer id,
+			Integer recId);
 }

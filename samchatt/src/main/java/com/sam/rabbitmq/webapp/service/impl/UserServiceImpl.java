@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sam.rabbitmq.webapp.chatt.to.ContactDTO;
 import com.sam.rabbitmq.webapp.chatt.to.MessageInformation;
 import com.sam.rabbitmq.webapp.common.CommonUtils;
 import com.sam.rabbitmq.webapp.dao.MessageDAO;
@@ -22,6 +23,7 @@ import com.sam.rabbitmq.webapp.entity.MessageStatus;
 import com.sam.rabbitmq.webapp.entity.User;
 import com.sam.rabbitmq.webapp.entity.UserMessageHistory;
 import com.sam.rabbitmq.webapp.exception.CustomException;
+import com.sam.rabbitmq.webapp.response.ContactsDetailsResponseTO;
 import com.sam.rabbitmq.webapp.response.MessageDetails;
 import com.sam.rabbitmq.webapp.response.ResponseCodes;
 import com.sam.rabbitmq.webapp.response.ResponseStatus;
@@ -124,6 +126,7 @@ public class UserServiceImpl implements UserService {
 		userRegistrationTO.setLastName(null);
 		userRegistrationTO.setMiddleName(null);
 		userRegistrationTO.setPassword(null);
+		userRegistrationTO.setSessionId(sessionId);
 		regitrationResponseTO.setData(userRegistrationTO);
 		ResponseStatus responseStatus = commonUtils.generateResponseStatusObject(ResponseCodes.REGISTRATION_SUCCESS);
 		regitrationResponseTO.setResponseStatus(responseStatus);
@@ -206,6 +209,32 @@ public class UserServiceImpl implements UserService {
 		return userMainPageDetailsTO;
 	}
 
+	public UserMainPageDetailsTO fetchUserDetailsByRecvId(String sessionId, Integer recvId) throws Exception{
+		Session session = sessionFactory.getCurrentSession(); 
+		UserMainPageDetailsTO userMainPageDetailsTO = new UserMainPageDetailsTO();
+		if( StringUtils.isBlank(sessionId) ){
+			throw new CustomException(ResponseCodes.SESSION_ID_REQUIRED);
+		}
+		User user = userDAO.getUserBySessionId(session, sessionId);
+		if(user == null) {
+			throw new CustomException(ResponseCodes.INVALID_SESSION_ID);
+		}
+		
+		UserRegistrationTO userInfo = new UserRegistrationTO();
+		userInfo.setName(user.getFirstName()+" "+user.getLastName());
+		userInfo.setMobileNumber(user.getMobileNum());
+		userInfo.setUserId(new Long(user.getId()));
+		userMainPageDetailsTO.setUserInfo(userInfo);
+		
+		List<UserChatHistoryDetails> userChatHistoryDetails = userDAO.fetchUserChatHistoryDetailsByUserIdAndRecvId(session, user.getId(), recvId);
+		userMainPageDetailsTO.setUserChatHistoryDetails(userChatHistoryDetails);
+		
+		ResponseStatus responseStatus = commonUtils.generateResponseStatusObject(ResponseCodes.SUCCESS);
+		userMainPageDetailsTO.setResponseStatus(responseStatus);
+		
+		return userMainPageDetailsTO;
+	}
+
 	public UserChatHistoryDetails fetchUserChatHistory(String sessionId, Integer recieverUserID) throws Exception {
 		Session session = sessionFactory.getCurrentSession(); 
 		UserChatHistoryDetails userChatHistoryDetails = new UserChatHistoryDetails();
@@ -274,5 +303,25 @@ public class UserServiceImpl implements UserService {
 		sendToQueue.sendMessageToQueue(information);
 		return userChatHistoryDetails;
 	
+	}
+
+	public ContactsDetailsResponseTO fetchContacts(String sessionId) throws Exception{
+		Session session = sessionFactory.getCurrentSession(); 
+		ContactsDetailsResponseTO contactsDetailsResponseTO = new ContactsDetailsResponseTO();
+		if( StringUtils.isBlank(sessionId) ){
+			throw new CustomException(ResponseCodes.SESSION_ID_REQUIRED);
+		}
+		User user = userDAO.getUserBySessionId(session, sessionId);
+		if(user == null) {
+			throw new CustomException(ResponseCodes.INVALID_SESSION_ID);
+		}
+		
+		List<ContactDTO> contactslist = userDAO.getContacts(session, user.getId());
+		contactsDetailsResponseTO.setData(contactslist);
+		
+		ResponseStatus responseStatus = commonUtils.generateResponseStatusObject(ResponseCodes.SUCCESS);
+		contactsDetailsResponseTO.setResponseStatus(responseStatus);
+		
+		return contactsDetailsResponseTO;
 	}
 }

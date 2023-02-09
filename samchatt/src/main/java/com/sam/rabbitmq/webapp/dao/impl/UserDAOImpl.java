@@ -15,6 +15,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
+import com.sam.rabbitmq.webapp.chatt.to.ContactDTO;
 import com.sam.rabbitmq.webapp.dao.UserDAO;
 import com.sam.rabbitmq.webapp.entity.User;
 import com.sam.rabbitmq.webapp.response.MessageDetails;
@@ -107,6 +108,34 @@ public class UserDAOImpl implements UserDAO{
 				.addScalar("readStatusCode", StringType.INSTANCE);
 		
 		query.setResultTransformer(Transformers.aliasToBean(MessageDetails.class));
+		return query.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ContactDTO> getContacts(Session session, Integer id) {
+		SQLQuery query = session.createSQLQuery(env.getProperty("FETCH_CONTACTS"));
+		query.setInteger("id", id);
+		query.addScalar("userId", IntegerType.INSTANCE)
+				.addScalar("contactName", StringType.INSTANCE)
+				.addScalar("contactNumber", LongType.INSTANCE);
+		
+		query.setResultTransformer(Transformers.aliasToBean(ContactDTO.class));
+		return query.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<UserChatHistoryDetails> fetchUserChatHistoryDetailsByUserIdAndRecvId(Session session, Integer userId,
+			Integer recvId) {
+		SQLQuery query = session.createSQLQuery(env.getProperty("FETCH_USER_CHAT_HISTORY_DETAILS_BY_USER_ID_AND_RECV_ID"));
+		query.setParameter("userId", userId);
+		query.setParameter("recvId", recvId);
+		query.addScalar("name", StringType.INSTANCE)
+				.addScalar("mobileNumber", LongType.INSTANCE)
+				.addScalar("lastMessageText", StringType.INSTANCE)
+				.addScalar("lastMessageDate", StringType.INSTANCE)
+				.addScalar("unReadMessagesCount", IntegerType.INSTANCE)
+				.addScalar("userId",LongType.INSTANCE);
+		query.setResultTransformer(Transformers.aliasToBean(UserChatHistoryDetails.class));
 		return query.list();
 	}
 }
